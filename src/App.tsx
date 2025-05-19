@@ -23,6 +23,7 @@ const App: React.FC = () => {
   const dragRef = useRef<HTMLDivElement>(null);
   const scenarioRef = useRef<HTMLDivElement>(null);
   const [vignetteIntensity, setVignetteIntensity] = useState(0);
+  const [activeTrack, setActiveTrack] = useState<'top' | 'bottom' | null>(null);
   
   const gameController = new GameController(gameState, (newState) => {
     setGameState(current => ({ ...current, ...newState }));
@@ -39,9 +40,10 @@ const App: React.FC = () => {
       (e.touches[0]?.clientY ?? (e as TouchEvent).changedTouches?.[0]?.clientY) : 
       (e as MouseEvent).clientY;
     
+    // Center the item on the cursor by subtracting half the item size
     return {
-      x: Math.max(0, Math.min(clientX - rect.left, rect.width - 50)),
-      y: Math.max(0, Math.min(clientY - rect.top, rect.height - 50))
+      x: clientX - rect.left - 25, // 50px width / 2
+      y: clientY - rect.top - 25   // 50px height / 2
     };
   };
 
@@ -86,11 +88,11 @@ const App: React.FC = () => {
     // Add global event listeners
     if ('ontouchstart' in window) {
       window.addEventListener('touchmove', handleDragMove, { passive: false });
-      window.addEventListener('touchend', handleDragEnd, { passive: false });
-      window.addEventListener('touchcancel', handleDragEnd, { passive: false });
+      window.addEventListener('touchend', handleDragEnd);
+      window.addEventListener('touchcancel', handleDragEnd);
     } else {
-      window.addEventListener('mousemove', handleDragMove, { passive: false });
-      window.addEventListener('mouseup', handleDragEnd, { passive: false });
+      window.addEventListener('mousemove', handleDragMove);
+      window.addEventListener('mouseup', handleDragEnd);
     }
   };
 
@@ -103,15 +105,30 @@ const App: React.FC = () => {
     const position = getEventPosition(e);
     gameController.handleDragMove(position);
     updateVignetteIntensity(position);
+
+    // Check if over a track
+    const tracks = document.querySelectorAll('.track');
+    let newActiveTrack: 'top' | 'bottom' | null = null;
+
+    tracks.forEach((track, index) => {
+      const rect = track.getBoundingClientRect();
+      const clientY = 'touches' in e ? 
+        (e.touches[0]?.clientY ?? (e as TouchEvent).changedTouches?.[0]?.clientY) : 
+        (e as MouseEvent).clientY;
+
+      if (clientY >= rect.top && clientY <= rect.bottom) {
+        newActiveTrack = index === 0 ? 'top' : 'bottom';
+      }
+    });
+
+    setActiveTrack(newActiveTrack);
   };
 
   const handleDragEnd = (e: MouseEvent | TouchEvent) => {
-    if (!gameState.isDragging) return;
-
     e.preventDefault();
     e.stopPropagation();
 
-    // Remove all possible event listeners to ensure cleanup
+    // Remove event listeners
     if ('ontouchstart' in window) {
       window.removeEventListener('touchmove', handleDragMove);
       window.removeEventListener('touchend', handleDragEnd);
@@ -121,11 +138,20 @@ const App: React.FC = () => {
       window.removeEventListener('mouseup', handleDragEnd);
     }
 
+    if (!gameState.isDragging) return;
+
     // Get final position and process the drop
     const position = getEventPosition(e);
     gameController.handleDragMove(position);
+
+    // If over an active track, trigger the appropriate action
+    if (activeTrack) {
+      gameController.handleDecision(activeTrack === 'top' ? 'green' : 'blue');
+    }
+
     gameController.handleDragEnd();
     setVignetteIntensity(0);
+    setActiveTrack(null);
   };
 
   useEffect(() => {
@@ -269,82 +295,91 @@ const App: React.FC = () => {
         {/* Add vignette effect */}
         <S.Vignette intensity={vignetteIntensity} />
 
-        {/* Add puzzle effects */}
-        {renderPuzzleEffects()}
+        <S.DraggableItemsContainer>
+          {scenario.puzzleSteps.map((step, index) => {
+            const isStepCompleted = gameState.completedSteps.includes(step.effect);
+            const hasRequirements = step.requiredSteps.every(req => gameState.completedSteps.includes(req));
+            
+            if (!isStepCompleted) {
+              return (
+                <S.DraggableItem
+                  key={index}
+                  ref={gameState.activeItem === step.item ? dragRef : undefined}
+                  isDragging={gameState.isDragging && gameState.activeItem === step.item}
+                  isActive={hasRequirements}
+                  style={{
+                    left: gameState.activeItem === step.item && gameState.dragPosition 
+                      ? `${gameState.dragPosition.x}px` 
+                      : undefined,
+                    top: gameState.activeItem === step.item && gameState.dragPosition
+                      ? `${gameState.dragPosition.y}px`
+                      : undefined,
+                    position: gameState.isDragging && gameState.activeItem === step.item ? 'fixed' : 'relative',
+                    transform: 'translate(0, 0)' // Reset any transforms
+                  }}
+                  onMouseDown={(e) => handleDragStart(e, step.item)}
+                  onTouchStart={(e) => handleDragStart(e, step.item)}
+                  title={!hasRequirements ? "Complete previous steps first" : ""}
+                >
+                  {step.item}
+                </S.DraggableItem>
+              );
+            }
+            return null;
+          })}
+        </S.DraggableItemsContainer>
 
-        {scenario.puzzleSteps.map((step, index) => {
-          const isStepCompleted = gameState.completedSteps.includes(step.effect);
-          const hasRequirements = step.requiredSteps.every(req => gameState.completedSteps.includes(req));
+        <S.GameArea>
+          {renderPuzzleEffects()}
+
+          <p>{scenario.description}</p>
           
-          if (!isStepCompleted) {
-            return (
-              <S.DraggableItem
-                key={index}
-                ref={gameState.activeItem === step.item ? dragRef : undefined}
-                isDragging={gameState.isDragging && gameState.activeItem === step.item}
-                isActive={true}
-                style={{
-                  left: gameState.activeItem === step.item && gameState.dragPosition 
-                    ? `${gameState.dragPosition.x}px` 
-                    : `${20 + index * 60}px`,
-                  top: gameState.activeItem === step.item && gameState.dragPosition
-                    ? `${gameState.dragPosition.y}px`
-                    : '20px',
-                  cursor: 'grab',
-                  position: 'absolute',
-                  transform: gameState.isDragging && gameState.activeItem === step.item ? 'scale(1.1)' : 'none',
-                  touchAction: 'none',
-                  opacity: hasRequirements ? 1 : 0.7
-                }}
-                onMouseDown={(e) => handleDragStart(e, step.item)}
-                onTouchStart={(e) => handleDragStart(e, step.item)}
-                title={!hasRequirements ? "Complete previous steps first" : ""}
+          <S.TracksContainer>
+            <S.Track className="track" isActive={activeTrack === 'top'}>
+              <S.TrackSwitch />
+              <S.Trolley isMoving={gameState.isAnimating && gameState.decision === 'green'} />
+            </S.Track>
+            <S.Track className="track" isActive={activeTrack === 'bottom'}>
+              <S.Trolley isMoving={gameState.isAnimating && gameState.decision === 'blue'} />
+            </S.Track>
+          </S.TracksContainer>
+
+          <S.Animals side="left">
+            {!gameState.decision && !gameState.completedSteps.includes('SAVE') && 
+              scenario.options.green.emoji.repeat(scenario.options.green.count)}
+            {gameState.decision === 'green' && scenario.options.green.deadEmoji.repeat(scenario.options.green.count)}
+            {gameState.completedSteps.includes('SAVE') && '✨'}
+          </S.Animals>
+          <S.Animals side="right">
+            {!gameState.decision && !gameState.completedSteps.includes('SAVE') && 
+              scenario.options.blue.emoji.repeat(scenario.options.blue.count)}
+            {gameState.decision === 'blue' && scenario.options.blue.deadEmoji.repeat(scenario.options.blue.count)}
+            {gameState.completedSteps.includes('SAVE') && '✨'}
+          </S.Animals>
+        </S.GameArea>
+
+        <div>
+          <p>Press the green button: {scenario.options.green.text}</p>
+          <p>Press the blue button: {scenario.options.blue.text}</p>
+          <p>What do you choose? Or can you find another way?</p>
+          
+          {!gameState.decision && !gameState.isAnimating && (
+            <S.ButtonContainer>
+              <S.Button
+                color="#28a745"
+                onClick={() => gameController.handleDecision('green')}
               >
-                {step.item}
-              </S.DraggableItem>
-            );
-          }
-          return null;
-        })}
-
-        <p>{scenario.description}</p>
-        <S.Track>
-          <S.Trolley isMoving={gameState.isAnimating} />
-        </S.Track>
-
-        <S.Animals side="left">
-          {!gameState.decision && !gameState.completedSteps.includes('SAVE') && 
-            scenario.options.green.emoji.repeat(scenario.options.green.count)}
-          {gameState.decision === 'green' && scenario.options.green.deadEmoji.repeat(scenario.options.green.count)}
-          {gameState.completedSteps.includes('SAVE') && '✨'}
-        </S.Animals>
-        <S.Animals side="right">
-          {!gameState.decision && !gameState.completedSteps.includes('SAVE') && 
-            scenario.options.blue.emoji.repeat(scenario.options.blue.count)}
-          {gameState.decision === 'blue' && scenario.options.blue.deadEmoji.repeat(scenario.options.blue.count)}
-          {gameState.completedSteps.includes('SAVE') && '✨'}
-        </S.Animals>
-
-        <p>Press the green button: {scenario.options.green.text}</p>
-        <p>Press the blue button: {scenario.options.blue.text}</p>
-        <p>What do you choose? Or can you find another way?</p>
-        
-        {!gameState.decision && !gameState.isAnimating && (
-          <S.ButtonContainer>
-            <S.Button
-              color="#28a745"
-              onClick={() => gameController.handleDecision('green')}
-            >
-              Green Button
-            </S.Button>
-            <S.Button
-              color="#007bff"
-              onClick={() => gameController.handleDecision('blue')}
-            >
-              Blue Button
-            </S.Button>
-          </S.ButtonContainer>
-        )}
+                Green Button
+              </S.Button>
+              <S.Button
+                color="#007bff"
+                onClick={() => gameController.handleDecision('blue')}
+              >
+                Blue Button
+              </S.Button>
+            </S.ButtonContainer>
+          )}
+        </div>
 
         <S.Result visible={gameState.decision !== null}>
           {gameState.decision === 'green' && (

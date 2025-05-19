@@ -32,135 +32,259 @@ export const Container = styled.div`
   flex-direction: column;
   align-items: center;
   min-height: 100vh;
-  padding: 1rem;
-  background-color: #f5f5f5;
-  font-family: Arial, sans-serif;
+  padding: 2rem 1rem;
+  background: linear-gradient(135deg, #f5f7fa 0%, #e4e8eb 100%);
+  font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
   overflow-x: hidden;
 
   @media (min-width: ${breakpoints.tablet}) {
-    padding: 2rem;
+    padding: 3rem 2rem;
   }
 `;
 
 export const Title = styled.h1`
-  color: #333;
-  margin-bottom: 1.5rem;
+  color: #2c3e50;
+  margin-bottom: 2rem;
   text-align: center;
-  font-size: 1.5rem;
+  font-size: 2rem;
+  font-weight: 600;
   padding: 0 1rem;
+  text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.1);
 
   @media (min-width: ${breakpoints.tablet}) {
-    font-size: 2rem;
-    margin-bottom: 2rem;
+    font-size: 2.5rem;
+    margin-bottom: 3rem;
   }
 `;
 
 export const Scenario = styled.div`
   background-color: white;
-  padding: 1rem;
-  border-radius: 10px;
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  padding: 2rem 1.5rem;
+  border-radius: 20px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
   width: 100%;
-  max-width: 800px;
-  margin: 0 auto 1rem;
+  max-width: 900px;
+  margin: 0 auto 2rem;
   text-align: center;
   position: relative;
-  min-height: 400px;
+  min-height: 600px;
   touch-action: none;
   overflow: hidden;
+  transition: transform 0.3s ease;
+  display: grid;
+  grid-template-rows: auto auto 1fr auto;
+  gap: 1.5rem;
 
   @media (min-width: ${breakpoints.tablet}) {
-    padding: 2rem;
-    min-height: 500px;
-    margin-bottom: 2rem;
+    padding: 3rem 2rem;
+    min-height: 700px;
+    margin-bottom: 3rem;
+    gap: 2rem;
   }
 
   p {
-    font-size: 0.9rem;
-    margin: 0.75rem 0;
-    padding: 0 0.5rem;
+    font-size: 1rem;
+    line-height: 1.6;
+    margin: 0.5rem 0;
+    padding: 0 1rem;
     position: relative;
     z-index: 600;
+    color: #34495e;
 
     @media (min-width: ${breakpoints.tablet}) {
-      font-size: 1rem;
-      margin: 1rem 0;
+      font-size: 1.1rem;
+      margin: 0.75rem 0;
     }
   }
 `;
 
-export const Track = styled.div`
-  height: 8px;
-  background-color: #666;
-  margin: 1.5rem 0;
+export const DraggableItemsContainer = styled.div`
   position: relative;
-  width: 90%;
-  margin-left: auto;
-  margin-right: auto;
+  display: flex;
+  gap: 1rem;
+  justify-content: center;
+  padding: 1rem;
+  min-height: 80px;
+  margin-bottom: 1rem;
   z-index: 600;
-
-  @media (min-width: ${breakpoints.tablet}) {
-    height: 10px;
-    margin: 2rem 0;
-  }
-`;
-
-export const Trolley = styled.div<{ isMoving: boolean }>`
-  width: 40px;
-  height: 30px;
-  background-color: #e74c3c;
-  position: absolute;
-  left: 0;
-  top: -12px;
-  border-radius: 5px;
-  visibility: ${props => props.isMoving ? 'visible' : 'hidden'};
-  animation: ${props => props.isMoving ? moveAcross : 'none'} 2s linear forwards;
-
-  &:before {
-    content: '🚂';
-    font-size: 20px;
-    position: absolute;
-    left: 50%;
-    top: 50%;
-    transform: translate(-50%, -50%);
-  }
-
-  @media (min-width: ${breakpoints.tablet}) {
-    width: 60px;
-    height: 40px;
-    top: -15px;
-
-    &:before {
-      font-size: 24px;
-    }
-  }
 `;
 
 export const DraggableItem = styled.div<{ isDragging: boolean; isActive: boolean }>`
-  position: absolute;
+  position: ${props => props.isDragging ? 'fixed' : 'relative'};
   user-select: none;
   -webkit-user-select: none;
-  font-size: 20px;
+  font-size: 24px;
   z-index: ${props => props.isDragging ? 1000 : 600};
-  opacity: ${props => props.isDragging ? 0.7 : props.isActive ? 1 : 0.5};
+  opacity: ${props => props.isDragging ? 0.85 : props.isActive ? 1 : 0.5};
   cursor: ${props => props.isActive ? (props.isDragging ? 'grabbing' : 'grab') : 'not-allowed'};
-  transition: ${props => props.isDragging ? 'none' : 'all 0.3s'};
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   touch-action: none;
   -webkit-touch-callout: none;
   will-change: transform;
   transform-origin: center center;
-  padding: 0.5rem;
+  padding: 1rem;
+  width: 50px;
+  height: 50px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: ${props => props.isActive ? 'rgba(255, 255, 255, 0.9)' : 'rgba(255, 255, 255, 0.5)'};
+  border-radius: 15px;
+  box-shadow: ${props => props.isDragging 
+    ? '0 10px 25px rgba(0, 0, 0, 0.2)' 
+    : props.isActive 
+      ? '0 5px 15px rgba(0, 0, 0, 0.1)' 
+      : 'none'};
+  backdrop-filter: blur(5px);
   
   @media (min-width: ${breakpoints.tablet}) {
-    font-size: 24px;
+    font-size: 28px;
+    padding: 1.2rem;
+    width: 60px;
+    height: 60px;
   }
 
   &:active {
     cursor: grabbing;
+    transform: scale(1.1);
   }
 
   &:hover {
     transform: ${props => props.isActive && !props.isDragging ? 'scale(1.1)' : 'none'};
+    box-shadow: ${props => props.isActive && !props.isDragging ? '0 8px 20px rgba(0, 0, 0, 0.15)' : 'none'};
+  }
+`;
+
+export const GameArea = styled.div`
+  position: relative;
+  width: 100%;
+  min-height: 200px;
+  margin: 2rem 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2rem;
+`;
+
+export const TracksContainer = styled.div`
+  position: relative;
+  width: 90%;
+  margin: 4rem auto;
+  display: flex;
+  flex-direction: column;
+  gap: 4rem;
+  z-index: 600;
+
+  @media (min-width: ${breakpoints.tablet}) {
+    gap: 5rem;
+    margin: 5rem auto;
+  }
+`;
+
+export const Track = styled.div<{ isActive?: boolean }>`
+  height: 15px;
+  background: linear-gradient(to right, #666666, #888888);
+  position: relative;
+  width: 100%;
+  border-radius: 6px;
+  opacity: ${props => props.isActive ? 1 : 0.7};
+  transition: all 0.3s ease;
+
+  &:before {
+    content: '';
+    position: absolute;
+    top: -3px;
+    left: -3px;
+    right: -3px;
+    bottom: -3px;
+    border-radius: 8px;
+    border: 3px solid ${props => props.isActive ? '#4CAF50' : 'transparent'};
+    pointer-events: none;
+  }
+
+  @media (min-width: ${breakpoints.tablet}) {
+    height: 20px;
+  }
+`;
+
+export const TrackSwitch = styled.div`
+  position: absolute;
+  left: 20%;
+  top: -8px;
+  width: 30px;
+  height: 30px;
+  background: #888;
+  border-radius: 50%;
+  border: 3px solid #666;
+  z-index: 601;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+  transition: transform 0.3s ease;
+
+  &:hover {
+    transform: scale(1.1);
+  }
+
+  &:before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 12px;
+    height: 12px;
+    background: #444;
+    border-radius: 50%;
+    transform: translate(-50%, -50%);
+  }
+
+  @media (min-width: ${breakpoints.tablet}) {
+    width: 40px;
+    height: 40px;
+    top: -10px;
+    
+    &:before {
+      width: 16px;
+      height: 16px;
+    }
+  }
+`;
+
+export const Trolley = styled.div<{ isMoving: boolean }>`
+  width: 60px;
+  height: 45px;
+  background: linear-gradient(135deg, #e74c3c 0%, #c0392b 100%);
+  position: absolute;
+  left: 0;
+  top: -20px;
+  border-radius: 12px;
+  visibility: ${props => props.isMoving ? 'visible' : 'visible'};
+  animation: ${props => props.isMoving ? moveAcross : 'none'} 2s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+  opacity: 0.9;
+  transform-origin: center center;
+  transition: transform 0.3s ease;
+
+  &:hover {
+    transform: scale(1.1);
+  }
+
+  &:before {
+    content: '🚂';
+    font-size: 28px;
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    filter: drop-shadow(0 2px 3px rgba(0, 0, 0, 0.2));
+  }
+
+  @media (min-width: ${breakpoints.tablet}) {
+    width: 80px;
+    height: 60px;
+    top: -25px;
+
+    &:before {
+      font-size: 36px;
+    }
   }
 `;
 
@@ -175,80 +299,95 @@ export const InteractiveArea = styled.div<{ isActive: boolean }>`
 
 export const SecretHint = styled.div<{ visible: boolean }>`
   position: absolute;
-  top: 0.5rem;
-  left: 0.5rem;
-  font-size: 0.8rem;
-  color: #666;
+  top: 1rem;
+  left: 1rem;
+  font-size: 0.9rem;
+  color: #34495e;
   opacity: ${props => props.visible ? 1 : 0};
-  transition: opacity 0.3s;
-  max-width: 150px;
+  transition: all 0.4s ease;
+  max-width: 200px;
   text-align: left;
-  background-color: rgba(255, 255, 255, 0.8);
-  padding: 0.25rem 0.5rem;
-  border-radius: 3px;
+  background-color: rgba(255, 255, 255, 0.95);
+  padding: 0.75rem 1rem;
+  border-radius: 10px;
+  box-shadow: 0 3px 15px rgba(0, 0, 0, 0.1);
+  backdrop-filter: blur(5px);
 
   @media (min-width: ${breakpoints.tablet}) {
-    top: 1rem;
-    left: 1rem;
-    font-size: 0.9rem;
-    max-width: 200px;
-    padding: 0.5rem 0.75rem;
+    top: 1.5rem;
+    left: 1.5rem;
+    font-size: 1rem;
+    max-width: 250px;
+    padding: 1rem 1.25rem;
   }
 `;
 
 export const ButtonContainer = styled.div`
   display: flex;
   flex-direction: column;
-  gap: 0.75rem;
-  margin-top: 1.5rem;
+  gap: 1rem;
+  margin-top: 2rem;
   align-items: center;
+  width: 100%;
+  padding: 0 1rem;
 
   @media (min-width: ${breakpoints.tablet}) {
     flex-direction: row;
-    gap: 1rem;
-    margin-top: 2rem;
+    gap: 1.5rem;
     justify-content: center;
+    padding: 0 2rem;
   }
 `;
 
 export const Button = styled.button<{ color: string }>`
-  padding: 0.75rem 1.5rem;
-  font-size: 1rem;
+  padding: 1rem 2rem;
+  font-size: 1.1rem;
   border: none;
-  border-radius: 5px;
+  border-radius: 10px;
   background-color: ${props => props.color};
   color: white;
   cursor: pointer;
-  transition: transform 0.2s;
+  transition: all 0.3s ease;
   width: 100%;
-  max-width: 200px;
+  max-width: 250px;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
 
   @media (min-width: ${breakpoints.tablet}) {
-    padding: 1rem 2rem;
+    padding: 1.2rem 2.5rem;
     font-size: 1.2rem;
     width: auto;
   }
 
   &:hover {
-    transform: scale(1.05);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.25);
+  }
+
+  &:active {
+    transform: translateY(1px);
   }
 `;
 
 export const Result = styled.div<{ visible: boolean }>`
-  margin-top: 1.5rem;
-  padding: 1rem;
-  background-color: ${props => props.visible ? '#f8f9fa' : 'transparent'};
-  border-radius: 5px;
+  margin-top: 2rem;
+  padding: 1.5rem;
+  background-color: ${props => props.visible ? '#ffffff' : 'transparent'};
+  border-radius: 15px;
   opacity: ${props => props.visible ? 1 : 0};
-  transition: opacity 0.3s;
+  transition: all 0.4s ease;
+  box-shadow: ${props => props.visible ? '0 5px 20px rgba(0, 0, 0, 0.1)' : 'none'};
 
   h3 {
-    font-size: 1.1rem;
-    margin-bottom: 0.5rem;
+    font-size: 1.3rem;
+    margin-bottom: 1rem;
+    color: #2c3e50;
+    font-weight: 600;
 
     @media (min-width: ${breakpoints.tablet}) {
-      font-size: 1.3rem;
-      margin-bottom: 0.75rem;
+      font-size: 1.5rem;
+      margin-bottom: 1.2rem;
     }
   }
 `;
@@ -268,34 +407,41 @@ export const NavigationButton = styled(Button)`
 
 export const Animals = styled.div<{ side: 'left' | 'right' | 'center' }>`
   position: absolute;
-  ${props => props.side === 'left' ? 'left: 10px' : props.side === 'right' ? 'right: 10px' : 'left: 50%'};
+  ${props => props.side === 'left' ? 'left: 10%' : props.side === 'right' ? 'right: 10%' : 'left: 50%'};
   ${props => props.side === 'center' && 'transform: translateX(-50%)'};
-  bottom: 10px;
-  font-size: 20px;
+  bottom: 30px;
+  font-size: 24px;
   transition: all 0.5s ease;
   z-index: 600;
+  padding: 1rem;
+  background-color: rgba(255, 255, 255, 0.5);
+  border-radius: 10px;
+  backdrop-filter: blur(2px);
 
   @media (min-width: ${breakpoints.tablet}) {
-    ${props => props.side === 'left' ? 'left: 20px' : props.side === 'right' ? 'right: 20px' : 'left: 50%'};
-    bottom: 20px;
-    font-size: 24px;
+    ${props => props.side === 'left' ? 'left: 15%' : props.side === 'right' ? 'right: 15%' : 'left: 50%'};
+    bottom: 40px;
+    font-size: 28px;
   }
 `;
 
 export const Progress = styled.div`
   position: absolute;
-  top: 0.5rem;
-  right: 0.5rem;
-  font-size: 0.8rem;
-  color: #666;
-  padding: 0.25rem 0.5rem;
-  background-color: rgba(255, 255, 255, 0.8);
-  border-radius: 3px;
+  top: 1rem;
+  right: 1rem;
+  font-size: 0.9rem;
+  color: #34495e;
+  padding: 0.75rem 1rem;
+  background-color: rgba(255, 255, 255, 0.95);
+  border-radius: 10px;
+  box-shadow: 0 3px 15px rgba(0, 0, 0, 0.1);
+  backdrop-filter: blur(5px);
 
   @media (min-width: ${breakpoints.tablet}) {
-    top: 1rem;
-    right: 1rem;
-    font-size: 0.9rem;
+    top: 1.5rem;
+    right: 1.5rem;
+    font-size: 1rem;
+    padding: 0.8rem 1.2rem;
   }
 `;
 
