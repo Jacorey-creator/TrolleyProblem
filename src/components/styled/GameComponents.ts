@@ -1,8 +1,20 @@
 import styled, { keyframes, css } from 'styled-components';
 
 export const moveAcross = keyframes`
-  from { transform: translateX(-100%); }
-  to { transform: translateX(200%); }
+  from { 
+    transform: translateX(-100%);
+    opacity: 0;
+  }
+  10% {
+    opacity: 1;
+  }
+  90% {
+    opacity: 1;
+  }
+  to { 
+    transform: translateX(200%);
+    opacity: 0;
+  }
 `;
 
 export const fadeIn = keyframes`
@@ -33,9 +45,10 @@ export const Container = styled.div`
   align-items: center;
   min-height: 100vh;
   padding: 2rem 1rem;
-  background: linear-gradient(135deg, #f5f7fa 0%, #e4e8eb 100%);
+  background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
   font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
   overflow-x: hidden;
+  color: #ffffff;
 
   @media (min-width: ${breakpoints.tablet}) {
     padding: 3rem 2rem;
@@ -43,25 +56,29 @@ export const Container = styled.div`
 `;
 
 export const Title = styled.h1`
-  color: #2c3e50;
+  color: #ffffff;
   margin-bottom: 2rem;
   text-align: center;
-  font-size: 2rem;
-  font-weight: 600;
+  font-size: 2.5rem;
+  font-weight: 700;
   padding: 0 1rem;
-  text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.1);
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+  background: linear-gradient(45deg, #00ff87, #60efff);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  letter-spacing: 1px;
 
   @media (min-width: ${breakpoints.tablet}) {
-    font-size: 2.5rem;
+    font-size: 3rem;
     margin-bottom: 3rem;
   }
 `;
 
 export const Scenario = styled.div`
-  background-color: white;
+  background: rgba(255, 255, 255, 0.1);
   padding: 2rem 1.5rem;
-  border-radius: 20px;
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+  border-radius: 24px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
   width: 100%;
   max-width: 900px;
   margin: 0 auto 2rem;
@@ -74,6 +91,8 @@ export const Scenario = styled.div`
   display: grid;
   grid-template-rows: auto auto 1fr auto;
   gap: 1.5rem;
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
 
   @media (min-width: ${breakpoints.tablet}) {
     padding: 3rem 2rem;
@@ -83,16 +102,17 @@ export const Scenario = styled.div`
   }
 
   p {
-    font-size: 1rem;
+    font-size: 1.1rem;
     line-height: 1.6;
     margin: 0.5rem 0;
     padding: 0 1rem;
     position: relative;
     z-index: 600;
-    color: #34495e;
+    color: #ffffff;
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
 
     @media (min-width: ${breakpoints.tablet}) {
-      font-size: 1.1rem;
+      font-size: 1.2rem;
       margin: 0.75rem 0;
     }
   }
@@ -128,14 +148,17 @@ export const DraggableItem = styled.div<{ isDragging: boolean; isActive: boolean
   display: flex;
   align-items: center;
   justify-content: center;
-  background-color: ${props => props.isActive ? 'rgba(255, 255, 255, 0.9)' : 'rgba(255, 255, 255, 0.5)'};
+  background: ${props => props.isActive 
+    ? 'linear-gradient(135deg, rgba(255, 255, 255, 0.2), rgba(255, 255, 255, 0.1))' 
+    : 'rgba(255, 255, 255, 0.05)'};
   border-radius: 15px;
   box-shadow: ${props => props.isDragging 
-    ? '0 10px 25px rgba(0, 0, 0, 0.2)' 
+    ? '0 10px 25px rgba(0, 0, 0, 0.3)' 
     : props.isActive 
-      ? '0 5px 15px rgba(0, 0, 0, 0.1)' 
+      ? '0 5px 15px rgba(0, 0, 0, 0.2)' 
       : 'none'};
   backdrop-filter: blur(5px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
   
   @media (min-width: ${breakpoints.tablet}) {
     font-size: 28px;
@@ -151,7 +174,7 @@ export const DraggableItem = styled.div<{ isDragging: boolean; isActive: boolean
 
   &:hover {
     transform: ${props => props.isActive && !props.isDragging ? 'scale(1.1)' : 'none'};
-    box-shadow: ${props => props.isActive && !props.isDragging ? '0 8px 20px rgba(0, 0, 0, 0.15)' : 'none'};
+    box-shadow: ${props => props.isActive && !props.isDragging ? '0 8px 20px rgba(0, 0, 0, 0.3)' : 'none'};
   }
 `;
 
@@ -172,23 +195,26 @@ export const TracksContainer = styled.div`
   margin: 4rem auto;
   display: flex;
   flex-direction: column;
-  gap: 4rem;
+  gap: 8rem;
   z-index: 600;
 
   @media (min-width: ${breakpoints.tablet}) {
-    gap: 5rem;
+    gap: 10rem;
     margin: 5rem auto;
   }
 `;
 
 export const Track = styled.div<{ isActive?: boolean }>`
   height: 15px;
-  background: linear-gradient(to right, #666666, #888888);
+  background: linear-gradient(to right, #4a4a4a, #666666);
   position: relative;
   width: 100%;
   border-radius: 6px;
   opacity: ${props => props.isActive ? 1 : 0.7};
   transition: all 0.3s ease;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+  overflow: visible;
+  z-index: 600;
 
   &:before {
     content: '';
@@ -198,8 +224,9 @@ export const Track = styled.div<{ isActive?: boolean }>`
     right: -3px;
     bottom: -3px;
     border-radius: 8px;
-    border: 3px solid ${props => props.isActive ? '#4CAF50' : 'transparent'};
+    border: 3px solid ${props => props.isActive ? '#00ff87' : 'transparent'};
     pointer-events: none;
+    box-shadow: 0 0 15px ${props => props.isActive ? 'rgba(0, 255, 135, 0.3)' : 'transparent'};
   }
 
   @media (min-width: ${breakpoints.tablet}) {
@@ -249,41 +276,52 @@ export const TrackSwitch = styled.div`
 `;
 
 export const Trolley = styled.div<{ isMoving: boolean }>`
-  width: 60px;
-  height: 45px;
-  background: linear-gradient(135deg, #e74c3c 0%, #c0392b 100%);
+  width: 80px;
+  height: 60px;
+  background: linear-gradient(135deg, #ff4b4b 0%, #ff0000 100%);
   position: absolute;
   left: 0;
-  top: -20px;
+  top: -30px;
   border-radius: 12px;
-  visibility: ${props => props.isMoving ? 'visible' : 'visible'};
-  animation: ${props => props.isMoving ? moveAcross : 'none'} 2s cubic-bezier(0.4, 0, 0.2, 1) forwards;
-  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
-  opacity: 0.9;
+  visibility: ${props => props.isMoving ? 'visible' : 'hidden'};
+  animation: ${props => props.isMoving ? moveAcross : 'none'} 3s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+  opacity: 0;
   transform-origin: center center;
   transition: transform 0.3s ease;
-
-  &:hover {
-    transform: scale(1.1);
-  }
+  border: 2px solid rgba(255, 255, 255, 0.2);
+  z-index: 700;
+  pointer-events: none;
 
   &:before {
     content: '🚂';
-    font-size: 28px;
+    font-size: 36px;
     position: absolute;
     left: 50%;
     top: 50%;
     transform: translate(-50%, -50%);
-    filter: drop-shadow(0 2px 3px rgba(0, 0, 0, 0.2));
+    filter: drop-shadow(0 2px 3px rgba(0, 0, 0, 0.3));
+  }
+
+  &:after {
+    content: '';
+    position: absolute;
+    bottom: -10px;
+    left: 10px;
+    right: 10px;
+    height: 8px;
+    background: #333;
+    border-radius: 4px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
   }
 
   @media (min-width: ${breakpoints.tablet}) {
-    width: 80px;
-    height: 60px;
-    top: -25px;
+    width: 100px;
+    height: 75px;
+    top: -37px;
 
     &:before {
-      font-size: 36px;
+      font-size: 48px;
     }
   }
 `;
@@ -302,16 +340,17 @@ export const SecretHint = styled.div<{ visible: boolean }>`
   top: 1rem;
   left: 1rem;
   font-size: 0.9rem;
-  color: #34495e;
+  color: #ffffff;
   opacity: ${props => props.visible ? 1 : 0};
   transition: all 0.4s ease;
   max-width: 200px;
   text-align: left;
-  background-color: rgba(255, 255, 255, 0.95);
+  background: rgba(255, 255, 255, 0.1);
   padding: 0.75rem 1rem;
-  border-radius: 10px;
-  box-shadow: 0 3px 15px rgba(0, 0, 0, 0.1);
-  backdrop-filter: blur(5px);
+  border-radius: 12px;
+  box-shadow: 0 3px 15px rgba(0, 0, 0, 0.2);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
 
   @media (min-width: ${breakpoints.tablet}) {
     top: 1.5rem;
@@ -343,8 +382,8 @@ export const Button = styled.button<{ color: string }>`
   padding: 1rem 2rem;
   font-size: 1.1rem;
   border: none;
-  border-radius: 10px;
-  background-color: ${props => props.color};
+  border-radius: 12px;
+  background: linear-gradient(135deg, ${props => props.color}, ${props => props.color}dd);
   color: white;
   cursor: pointer;
   transition: all 0.3s ease;
@@ -352,41 +391,66 @@ export const Button = styled.button<{ color: string }>`
   max-width: 250px;
   font-weight: 600;
   letter-spacing: 0.5px;
-  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+  position: relative;
+  overflow: hidden;
+
+  &:before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(
+      90deg,
+      transparent,
+      rgba(255, 255, 255, 0.2),
+      transparent
+    );
+    transition: 0.5s;
+  }
+
+  &:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.4);
+
+    &:before {
+      left: 100%;
+    }
+  }
+
+  &:active {
+    transform: translateY(1px);
+  }
 
   @media (min-width: ${breakpoints.tablet}) {
     padding: 1.2rem 2.5rem;
     font-size: 1.2rem;
     width: auto;
   }
-
-  &:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.25);
-  }
-
-  &:active {
-    transform: translateY(1px);
-  }
 `;
 
 export const Result = styled.div<{ visible: boolean }>`
   margin-top: 2rem;
   padding: 1.5rem;
-  background-color: ${props => props.visible ? '#ffffff' : 'transparent'};
-  border-radius: 15px;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 20px;
   opacity: ${props => props.visible ? 1 : 0};
   transition: all 0.4s ease;
-  box-shadow: ${props => props.visible ? '0 5px 20px rgba(0, 0, 0, 0.1)' : 'none'};
+  box-shadow: ${props => props.visible ? '0 5px 20px rgba(0, 0, 0, 0.2)' : 'none'};
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
 
   h3 {
-    font-size: 1.3rem;
+    font-size: 1.5rem;
     margin-bottom: 1rem;
-    color: #2c3e50;
+    color: #ffffff;
     font-weight: 600;
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
 
     @media (min-width: ${breakpoints.tablet}) {
-      font-size: 1.5rem;
+      font-size: 1.8rem;
       margin-bottom: 1.2rem;
     }
   }
@@ -409,19 +473,27 @@ export const Animals = styled.div<{ side: 'left' | 'right' | 'center' }>`
   position: absolute;
   ${props => props.side === 'left' ? 'left: 10%' : props.side === 'right' ? 'right: 10%' : 'left: 50%'};
   ${props => props.side === 'center' && 'transform: translateX(-50%)'};
-  bottom: 30px;
-  font-size: 24px;
+  ${props => props.side === 'left' ? 'top: 20%' : 'bottom: 20%'};
+  font-size: 32px;
   transition: all 0.5s ease;
   z-index: 600;
-  padding: 1rem;
-  background-color: rgba(255, 255, 255, 0.5);
-  border-radius: 10px;
-  backdrop-filter: blur(2px);
+  padding: 1.5rem;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 15px;
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 120px;
+  transform: ${props => props.side === 'left' ? 'translateY(-50%)' : 'translateY(50%)'};
 
   @media (min-width: ${breakpoints.tablet}) {
     ${props => props.side === 'left' ? 'left: 15%' : props.side === 'right' ? 'right: 15%' : 'left: 50%'};
-    bottom: 40px;
-    font-size: 28px;
+    font-size: 40px;
+    padding: 2rem;
+    min-width: 150px;
   }
 `;
 
@@ -430,12 +502,13 @@ export const Progress = styled.div`
   top: 1rem;
   right: 1rem;
   font-size: 0.9rem;
-  color: #34495e;
+  color: #ffffff;
   padding: 0.75rem 1rem;
-  background-color: rgba(255, 255, 255, 0.95);
-  border-radius: 10px;
-  box-shadow: 0 3px 15px rgba(0, 0, 0, 0.1);
-  backdrop-filter: blur(5px);
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 12px;
+  box-shadow: 0 3px 15px rgba(0, 0, 0, 0.2);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
 
   @media (min-width: ${breakpoints.tablet}) {
     top: 1.5rem;

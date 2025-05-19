@@ -102,16 +102,18 @@ export class GameController {
     if (this.state.completedSteps.includes(finalStep.effect)) {
       this.setState({ decision: 'saved' });
     } else {
-      this.setState({ isAnimating: true });
+      this.setState({ 
+        isAnimating: true,
+        decision: choice // Set decision immediately to show the correct trolley
+      });
       setTimeout(() => {
         this.setState({
-          decision: choice,
           isAnimating: false,
           completed: this.state.completed.map((val, idx) => 
             idx === this.state.currentScenario ? true : val
           )
         });
-      }, 2000);
+      }, 3000); // Match the trolley animation duration
     }
   };
 
